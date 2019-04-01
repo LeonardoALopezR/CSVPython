@@ -6,8 +6,10 @@ import itertools
 lines=(['No. Pedido','Nombre','Mail','Telefono','Telefono de facturacion','Canasta','Club','Dia Pagado','Total','Tortilla Blanca','Tortilla Azul','Queso','Huevo','Pan integral','Panque integral te verde','Pan integral multigrano','Miel','Frijol','Jitomate','Rosca','Cafe','Pan de caja integral','Panque integral platano','Panque brioche','Panque sin gluten platano','Plan de caja blanco','Pan integral matcha','Panque sin gluten','Pan caja canela y pasas','Panque red velvet','Panque sin gluten matcha','Red velvet','Pan de caja blanco multigrano','Lechuga PZ','Acelga KG','Mermelada mango','Salsa Xoconostle','Sal'],)
 userLines=(['Pagina','Nombre','Canasta','Dia','Club','Email','Telefono','Dia Pagado','Pago'],)
 heather=(['Encabezado'],)
+newUser=[]
 otherLine=[]
 otherUserLine=[]
+oldNewUser = ''
 
 with open('orders_export.csv', encoding='utf-8', mode='rt') as f, open('sorted.csv', encoding='utf-8', mode='w', newline='') as final:
     writer = csv.writer(final, delimiter=',')
@@ -27,10 +29,13 @@ countLine2= 0
 countLine3= 0
 orderNumber = 0
 index = 0
+newUserBanner=0
 
 csv_f1 = csv.reader(f1)
 csv_f2 = csv.reader(f2)
 csv_f3 = csv.reader(f3)
+
+noLines = f3.readlines()
 
 for row1 in itertools.zip_longest(csv_f1):
     if countLine == 0:
@@ -71,16 +76,6 @@ for row1 in itertools.zip_longest(csv_f1):
             # print "No"
             countLine2 =0
             countLine3 =0
-            for row3 in itertools.zip_longest(csv_f3):
-                # print 'aaaaaaaaaaa',row3[0][4],row1[0][1]
-                if countLine2==0:
-                    pass
-                else:
-                    if row3[0][4]==row1[0][1]:
-                        otherUserLine.append(['p',row3[0][0],row3[0][1],row3[0][2],row3[0][3],row3[0][4]+" ",row3[0][5],row1[0][3][:10],row1[0][11]])
-                    else:
-                        pass
-                countLine3 += 1
             for row2 in itertools.zip_longest(csv_f2):
                 if countLine2==0:
                     pass
@@ -95,6 +90,28 @@ for row1 in itertools.zip_longest(csv_f1):
                         otherLine.append([row1[0][0],row2[0][0]+' '+row2[0][1],row1[0][1],row2[0][12],row1[0][33],entrega[6],club,row1[0][3][:10],row1[0][11],'','','','','','','','','','','','','','','','','','','','','','','','','','','','',''])
                         # temp=([row1[0][0],row2[0][0]+' '+row2[0][1],row1[0][1],row2[0][12],row1[0][33],entrega[6],club,row1[0][3][:10],row1[0][11]],)
                         # print otherLine
+                        for row3 in itertools.zip_longest(csv_f3):
+                            # print ('aaaaaaaaaaa',countLine3)
+                            if countLine3==0:
+                                pass
+                            else:
+                                if row3[0][4]==row1[0][1]:
+                                    # print ('Siiiii')
+                                    otherUserLine.append(['p',row3[0][0],row3[0][1],row3[0][2],row3[0][3],row3[0][4]+" ",row3[0][5],row1[0][3][:10],row1[0][11]])
+                                else:
+                                    # str1 = ''.join(noLines)
+                                    # print(str1.split(',').index('phoebejaneclark@gmail.com'))
+                                    try:
+                                        str1 = ''.join(noLines)
+                                        indexUser = str1.split(',').index(row1[0][1])
+                                        # print(str1.split(',').index(row1[0][1]))
+                                    except:
+                                        if(oldNewUser != row1[0][1]):
+                                            newUser.append([row2[0][0]+' '+row2[0][1],entrega[6],' ',club,row1[0][1],row2[0][12],' '])
+                                            oldNewUser = row1[0][1]
+                                        else:
+                                            pass
+                            countLine3 += 1
                     else:
                         pass
                 countLine2 += 1
@@ -132,3 +149,7 @@ with open('entrega_usuarios.csv', mode='rt') as f, open('entrega_usuarios_final.
     writer.writerows(userLines)       
     for row in sorted2: 
         writer.writerow(row)
+
+with open('allUsers.csv', 'a', newline='') as writeFile:
+    writer = csv.writer(writeFile,delimiter=',')
+    writer.writerows(newUser)
